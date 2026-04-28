@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +13,7 @@ public class CubeSpawner : MonoBehaviour
 
     [SerializeField] private GameObject cubePrefab;
     [SerializeField] private Color[] cubeColors;
+    [SerializeField] private Material[] cubeMaterials;
 
     [HideInInspector] public int maxCubeNumber; // 2power 12 = 4096
 
@@ -56,7 +55,23 @@ public class CubeSpawner : MonoBehaviour
 
     private Color GetColor(int number)
     {
-        return cubeColors[(int)(Mathf.Log(number) / Mathf.Log(2)) - 1]; // we are getting the top number of value for example :  2^3 => 3. 
+        if (cubeColors == null || cubeColors.Length == 0)
+            return Color.white;
+
+        return cubeColors[GetVisualIndex(number) % cubeColors.Length]; // we are getting the top number of value for example :  2^3 => 3. 
+    }
+
+    private Material GetMaterial(int number)
+    {
+        if (cubeMaterials == null || cubeMaterials.Length == 0)
+            return null;
+
+        return cubeMaterials[GetVisualIndex(number) % cubeMaterials.Length];
+    }
+
+    private int GetVisualIndex(int number)
+    {
+        return Mathf.Max(0, (int)(Mathf.Log(number) / Mathf.Log(2)) - 1);
     }
 
     public Cube Spawn(int number, Vector3 position)
@@ -76,9 +91,9 @@ public class CubeSpawner : MonoBehaviour
         }
         Cube cube = cubesQueue.Dequeue();
         cube.transform.position = position;
-        cube.SetNumber(number);
-        cube.SetColor(GetColor(number));
         cube.gameObject.SetActive(true);
+        cube.SetNumber(number);
+        cube.SetVisual(GetColor(number), GetMaterial(number));
         return cube;
     }
     public Cube SpawnRandom()

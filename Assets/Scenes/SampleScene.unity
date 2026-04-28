@@ -3249,6 +3249,13 @@ MonoBehaviour:
   - {r: 0.049446333, g: 0.013794942, b: 0.5849056, a: 1}
   - {r: 0.4433962, g: 0.24856909, b: 0.1986917, a: 1}
   - {r: 0.9266004, g: 1, b: 0.33490568, a: 1}
+  cubeMaterials:
+  - {fileID: 2100000, guid: 6acdee46b203d3d47aa4fddc24100d38, type: 2}
+  - {fileID: 2100000, guid: 4e493e9dc88d2c441a49432ffeb60956, type: 2}
+  - {fileID: 2100000, guid: 596f868d3d3aee642b4d8eb7e1937ac7, type: 2}
+  - {fileID: 2100000, guid: 9493d55cd2ca4b2418dbae6fe881f64e, type: 2}
+  - {fileID: 2100000, guid: a055d6571c45bbb41b46003ca1c88897, type: 2}
+  - {fileID: 2100000, guid: c14c5c428c89fa64491de6e2b42b5d65, type: 2}
   maxCubeNumber: 0
 --- !u!1 &2003099066
 GameObject:

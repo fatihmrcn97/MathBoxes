@@ -50,6 +50,7 @@ public class Player : MonoBehaviour
             isPointerDown = false;
             canMove = false;
             //push the cube
+            mainCube.PlayJellyLaunch();
             mainCube.CubeRigidbody.AddForce(Vector3.forward * pushForce, ForceMode.Impulse);
 
             //spawn a new cube aftrer 0.3 sec;
