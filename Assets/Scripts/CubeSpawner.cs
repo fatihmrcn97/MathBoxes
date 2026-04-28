@@ -87,7 +87,7 @@ public class CubeSpawner : MonoBehaviour
     }
     public void Destroy(Cube cube)
     {
-        cube.CubeRigidbody.velocity = Vector3.zero;
+        cube.CubeRigidbody.linearVelocity = Vector3.zero;
         cube.CubeRigidbody.angularVelocity= Vector3.zero;
         cube.transform.rotation = Quaternion.identity;
         cube.IsMainCube = false;

@@ -19,7 +19,7 @@ public class RedZone : MonoBehaviour
         Cube cube = other.GetComponent<Cube>();
         if (cube != null)
         {
-            if (!cube.IsMainCube && cube.CubeRigidbody.velocity.magnitude < 0.1f)
+            if (!cube.IsMainCube && cube.CubeRigidbody.linearVelocity.magnitude < 0.1f)
             {
                 if (oneTime)
                 {
