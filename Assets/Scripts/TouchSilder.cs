@@ -1,54 +1,107 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TouchSilder : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class TouchSilder : MonoBehaviour
 {
 
     public UnityAction OnPointerDownEvent;
     public UnityAction<float> OnPointerDragEvent;
     public UnityAction OnPointerUpEvent;
 
+    [SerializeField] private float activeScreenHeight = 0.5f;
 
-    private Slider uiSlider;
+    private bool isPointerDown;
+    private int activeFingerId = -1;
+
     private void Awake()
     {
-        uiSlider = GetComponent<Slider>();
-        uiSlider.onValueChanged.AddListener(OnPointerDrag);
+        DisableLegacySlider();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    private void Update()
     {
-        if(OnPointerDownEvent !=null)
+#if UNITY_EDITOR || UNITY_STANDALONE
+        HandleMouseInput();
+#endif
+        HandleTouchInput();
+    }
+
+    private void HandleMouseInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+            TryStartPointer(Input.mousePosition);
+
+        if (Input.GetMouseButton(0) && isPointerDown)
+            OnPointerDrag(Input.mousePosition);
+
+        if (Input.GetMouseButtonUp(0) && isPointerDown)
+            EndPointer();
+    }
+
+    private void HandleTouchInput()
+    {
+        for (int i = 0; i < Input.touchCount; i++)
         {
-            OnPointerDownEvent.Invoke();
+            Touch touch = Input.GetTouch(i);
+
+            if (touch.phase == TouchPhase.Began && !isPointerDown)
+            {
+                if (TryStartPointer(touch.position))
+                    activeFingerId = touch.fingerId;
+            }
+
+            if (touch.fingerId != activeFingerId)
+                continue;
+
+            if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
+                OnPointerDrag(touch.position);
+
+            if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                EndPointer();
         }
-        if (OnPointerDragEvent != null)
-            OnPointerDragEvent.Invoke(uiSlider.value);
     }
 
-    private void OnPointerDrag(float val)
+    private bool TryStartPointer(Vector2 screenPosition)
     {
-        if (OnPointerDragEvent != null)
-            OnPointerDragEvent.Invoke(val);
+        if (screenPosition.y > Screen.height * activeScreenHeight)
+            return false;
+
+        isPointerDown = true;
+        activeFingerId = -1;
+
+        OnPointerDownEvent?.Invoke();
+        OnPointerDrag(screenPosition);
+
+        return true;
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    private void OnPointerDrag(Vector2 screenPosition)
     {
-        if (OnPointerUpEvent != null)
-        {
-            OnPointerUpEvent.Invoke();
-        }
-        //reset slider value
-        uiSlider.value = 0f;
+        if (Screen.width <= 0)
+            return;
+
+        float xMovement = Mathf.Clamp((screenPosition.x / Screen.width * 2f) - 1f, -1f, 1f);
+        OnPointerDragEvent?.Invoke(xMovement);
     }
 
-    private void OnDestroy()
+    private void EndPointer()
     {
-        //remove listeners to avoid memory leaks
-        uiSlider.onValueChanged.RemoveListener(OnPointerDrag);
+        isPointerDown = false;
+        activeFingerId = -1;
+        OnPointerUpEvent?.Invoke();
+    }
+
+    private void DisableLegacySlider()
+    {
+        Slider slider = GetComponent<Slider>();
+
+        if (slider != null)
+            slider.enabled = false;
+
+        Graphic[] graphics = GetComponentsInChildren<Graphic>();
+
+        for (int i = 0; i < graphics.Length; i++)
+            graphics[i].enabled = false;
     }
 }
